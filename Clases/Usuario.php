@@ -95,24 +95,27 @@ class Usuario{
 
     public function registrarAuditoria(
         $correo,
-        $estado
+        $estado,
+        $ip
     ){
 
         $sql = "INSERT INTO login_audit
                 (
                     correo,
-                    estado
+                    estado,
+                    ip
                 )
                 VALUES
                 (
-                    ?,?
+                    ?,?,?
                 )";
 
         $stmt = $this->pdo->prepare($sql);
 
         return $stmt->execute([
             $correo,
-            $estado
+            $estado,
+            $ip
         ]);
     }
 

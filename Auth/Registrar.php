@@ -10,9 +10,7 @@ require "../vendor/autoload.php";
 use Sonata\GoogleAuthenticator\GoogleAuthenticator;
 
 /*
-|--------------------------------------------------------------------------
-| Validar Token CSRF
-|--------------------------------------------------------------------------
+Validar Token CSRF
 */
 
 if(
@@ -24,9 +22,7 @@ if(
 }
 
 /*
-|--------------------------------------------------------------------------
-| Sanitizar datos
-|--------------------------------------------------------------------------
+Sanitizar datos
 */
 
 $nombre = Sanitizar::texto($_POST['nombre']);
@@ -39,9 +35,7 @@ $password = $_POST['password'];
 $usuario = new Usuario($pdo);
 
 /*
-|--------------------------------------------------------------------------
-| Verificar correo duplicado
-|--------------------------------------------------------------------------
+Verificar correo duplicado
 */
 
 if($usuario->existeCorreo($correo)){
@@ -49,17 +43,13 @@ if($usuario->existeCorreo($correo)){
 }
 
 /*
-|--------------------------------------------------------------------------
-| Crear hash de contraseña
-|--------------------------------------------------------------------------
+Crear hash de contraseña
 */
 
 $hash = $usuario->generarHash($password);
 
 /*
-|--------------------------------------------------------------------------
-| Guardar usuario
-|--------------------------------------------------------------------------
+Guardar usuario
 */
 
 $usuario->guardarUsuario(
@@ -71,9 +61,7 @@ $usuario->guardarUsuario(
 );
 
 /*
-|--------------------------------------------------------------------------
-| Generar secreto 2FA
-|--------------------------------------------------------------------------
+Generar secreto 2FA
 */
 
 $g = new GoogleAuthenticator();
@@ -81,9 +69,7 @@ $g = new GoogleAuthenticator();
 $secret = $g->generateSecret();
 
 /*
-|--------------------------------------------------------------------------
-| Guardar secreto
-|--------------------------------------------------------------------------
+Guardar secreto
 */
 
 $usuario->guardarSecreto2FA(
@@ -92,9 +78,7 @@ $usuario->guardarSecreto2FA(
 );
 
 /*
-|--------------------------------------------------------------------------
-| Generar URL OTP
-|--------------------------------------------------------------------------
+Generar URL OTP
 */
 
 $app = "Laboratorio2FA";
@@ -110,9 +94,7 @@ $otpauth =
     urlencode($app);
 
 /*
-|--------------------------------------------------------------------------
-| Generar QR
-|--------------------------------------------------------------------------
+Generar QR
 */
 
 $qr_url =
@@ -126,34 +108,159 @@ $qr_url =
 <head>
     <meta charset="UTF-8">
     <title>Registro Exitoso</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:'Segoe UI', sans-serif;
+            background:#F5F7FB;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            padding:20px;
+        }
+
+        .card{
+            background:white;
+            width:100%;
+            max-width:600px;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,.08);
+            text-align:center;
+        }
+
+        .icono{
+            font-size:60px;
+            margin-bottom:15px;
+        }
+
+        h2{
+            color:#344054;
+            margin-bottom:10px;
+        }
+
+        .descripcion{
+            color:#667085;
+            margin-bottom:25px;
+            line-height:1.6;
+        }
+
+        .qr{
+            margin:25px 0;
+        }
+
+        .qr img{
+            border-radius:15px;
+            padding:10px;
+            background:white;
+            border:1px solid #E4E7EC;
+        }
+
+        .secreto-box{
+            background:#F8F9FC;
+            border:1px solid #E4E7EC;
+            border-radius:12px;
+            padding:15px;
+            margin:20px 0;
+        }
+
+        .secreto-titulo{
+            color:#344054;
+            font-weight:600;
+            margin-bottom:10px;
+        }
+
+        .secreto{
+            font-size:18px;
+            font-weight:bold;
+            letter-spacing:2px;
+            color:#7DA8F7;
+            word-break:break-all;
+        }
+
+        .nota{
+            background:#FFF8E7;
+            color:#8A6D3B;
+            padding:15px;
+            border-radius:12px;
+            margin-top:20px;
+            line-height:1.5;
+        }
+
+        .btn{
+            display:inline-block;
+            margin-top:25px;
+            padding:14px 25px;
+            background:#A7C7FF;
+            color:#1D2939;
+            text-decoration:none;
+            border-radius:12px;
+            font-weight:600;
+            transition:.3s;
+        }
+
+        .btn:hover{
+            background:#92B8FB;
+            transform:translateY(-2px);
+        }
+
+    </style>
+
 </head>
 <body>
 
+<div class="card">
+
+    <div class="icono">
+        ✅
+    </div>
+
     <h2>Registro Exitoso</h2>
 
-    <p>
-        Escanea este código con Google Authenticator
+    <p class="descripcion">
+        Su cuenta ha sido creada correctamente.
+        Para activar la autenticación de dos factores (2FA),
+        escanee el siguiente código QR con Google Authenticator.
     </p>
 
-    <img src="<?= $qr_url ?>" alt="QR 2FA">
+    <div class="qr">
+        <img src="<?= $qr_url ?>" alt="QR 2FA">
+    </div>
 
-    <br><br>
+    <div class="secreto-box">
 
-    <strong>Secreto:</strong>
+        <div class="secreto-titulo">
+            Clave Secreta
+        </div>
 
-    <?= $secret ?>
+        <div class="secreto">
+            <?= $secret ?>
+        </div>
 
-    <br><br>
+    </div>
 
-    <small>
-        Si el QR falla, puedes agregar la cuenta manualmente usando el secreto mostrado arriba.
-    </small>
+    <div class="nota">
+        Si no puede escanear el código QR, agregue la cuenta manualmente
+        en Google Authenticator utilizando la clave secreta mostrada arriba.
+    </div>
 
-    <br><br>
+    <a
+        href="../Views/Login_Form.php"
+        class="btn">
 
-    <a href="../Views/Login_Form.php">
         Ir al Login
+
     </a>
+
+</div>
 
 </body>
 </html>
